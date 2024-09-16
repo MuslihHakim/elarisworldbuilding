@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Arcane Spectrum Magic System</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Crimson+Text&display=swap" rel="stylesheet">
+  <!-- Custom Styles -->
+  <style>
+    /* Custom Font Styles */
+    h1, h2 {
+      font-family: 'Cinzel', serif;
+    }
+    body, p, label, input, select, button {
+      font-family: 'Crimson Text', serif;
+    }
+
+    /* Background Image */
+    body {
+      background-image: url('https://source.unsplash.com/1600x900/?fantasy,landscape');
+      background-size: cover;
+      background-attachment: fixed;
+    }
+
+    /* Custom Scrollbar for Output Div */
+    #output::-webkit-scrollbar {
+      width: 8px;
+    }
+    #output::-webkit-scrollbar-thumb {
+      background-color: rgba(255, 255, 255, 0.5);
+      border-radius: 4px;
+    }
+
+    /* Status Message Styles */
+    .status-success {
+      color: #48bb78; /* Tailwind green-500 */
+      font-weight: bold;
+    }
+    .status-failure {
+      color: #f56565; /* Tailwind red-500 */
+      font-weight: bold;
+    }
+    .status-info {
+      color: #63b3ed; /* Tailwind blue-400 */
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body class="bg-gray-800 bg-opacity-75">
+  <div id="app" class="max-w-4xl mx-auto p-4 bg-gray-900 bg-opacity-80 rounded-lg shadow-lg">
+    <header class="text-center mb-8">
+      <h1 class="text-4xl text-yellow-400 drop-shadow-lg">Arcane Spectrum Magic System</h1>
+    </header>
+
+    <!-- Caster Creation Section -->
+    <div class="section mb-8">
+      <h2 class="text-2xl text-yellow-300 mb-4">Create Your Caster</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="form-group">
+          <label for="caster-name" class="text-white">Name:</label>
+          <input type="text" id="caster-name" placeholder="Enter caster name" required class="w-full p-2 rounded bg-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400">
+        </div>
+        <div class="form-group">
+          <label for="caster-level" class="text-white">Level:</label>
+          <input type="number" id="caster-level" value="1" min="1" class="w-full p-2 rounded bg-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400">
+        </div>
+        <div class="form-group">
+          <label for="caster-skill" class="text-white">Skill Level:</label>
+          <input type="number" id="caster-skill" value="1.0" step="0.1" min="0.1" class="w-full p-2 rounded bg-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400">
+        </div>
+        <div class="form-group">
+          <label for="caster-mana" class="text-white">Mana Pool:</label>
+          <input type="number" id="caster-mana" value="100" min="0" class="w-full p-2 rounded bg-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400">
+        </div>
+      </div>
+      <div class="form-group mt-4">
+        <button id="create-caster-btn" class="w-full md:w-auto px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white font-bold rounded">Create Caster</button>
+      </div>
+    </div>
+
+    <!-- Location Selection Section -->
+    <div class="section mb-8" id="location-section" style="display: none;">
+      <h2 class="text-2xl text-yellow-300 mb-4">Travel to a Location</h2>
+      <div class="form-group">
+        <label for="location-select" class="text-white">Select Location:</label>
+        <select id="location-select" class="w-full p-2 rounded bg-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400"></select>
+      </div>
+      <div class="form-group mt-4">
+        <button id="travel-btn" class="w-full md:w-auto px-4 py-2 bg-green-500 hover:bg-green-700 text-white font-bold rounded">Travel</button>
+      </div>
+    </div>
+
+    <!-- Environment Section -->
+    <div class="section mb-8">
+      <h2 class="text-2xl text-yellow-300 mb-4">Environment</h2>
+      <div id="environment-display" class="flex flex-col md:flex-row justify-between items-start">
+        <div class="environment-info text-white mb-4 md:mb-0">
+          <p><strong>Location:</strong> <span id="environment-name">Nexus of Light</span></p>
+          <p><strong>Time of Day:</strong> <span id="environment-time">Day</span></p>
+          <p><strong>Weather:</strong> <span id="environment-weather">Clear</span></p>
+        </div>
+        <div class="environment-resonances text-white">
+          <p><strong>Resonances:</strong></p>
+          <ul id="environment-resonances" class="list-disc list-inside"></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Spell Casting Section -->
+    <div class="section mb-8" id="spell-section" style="display: none;">
+      <h2 class="text-2xl text-yellow-300 mb-4">Spell Casting</h2>
+      <div class="caster-info text-white mb-4">
+        <p><strong>Caster:</strong> <span id="caster-info"></span></p>
+      </div>
+      <div class="form-group">
+        <label for="spell-select" class="text-white">Select Spell:</label>
+        <select id="spell-select" class="w-full p-2 rounded bg-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400"></select>
+      </div>
+      <div class="form-group mt-4">
+        <button id="cast-spell-btn" class="w-full md:w-auto px-4 py-2 bg-purple-500 hover:bg-purple-700 text-white font-bold rounded">Cast Spell</button>
+      </div>
+    </div>
+
+    <!-- Output Section -->
+    <div class="section">
+      <h2 class="text-2xl text-yellow-300 mb-4">System Output</h2>
+      <div id="output" class="bg-gray-800 bg-opacity-75 p-4 rounded h-64 overflow-y-auto text-white"></div>
+    </div>
+  </div>
+
+  <!-- JavaScript Code -->
+  <script>
+    // JavaScript Code for Arcane Spectrum Magic System
+
+    (() => {
+      // Data Models
+      class ArcaneEnergy {
+        constructor(name, frequency) {
+          this.name = name;
+          this.frequency = frequency;
+        }
+      }
+
+      class Resonance {
+        constructor(personal, environmental) {
+          this.personal = personal;
+          this.environmental = environmental;
+        }
+      }
+
+      class FociArtifact {
+        constructor(name, amplification) {
+          this.name = name;
+          this.amplification = amplification;
+        }
+      }
+
+      class SpellComponent {
+        constructor(energy, alignmentCoefficient, resonance, focusAmplification, dissonanceFactor) {
+          this.energy = energy;
+          this.alignmentCoefficient = alignmentCoefficient;
+          this.resonance = resonance;
+          this.focusAmplification = focusAmplification;
+          this.dissonanceFactor = dissonanceFactor;
+        }
+      }
+
+      class Spell {
+        constructor(name, components, baseManaCost, complexityMultiplier, description, requirements = {}) {
+          this.name = name;
+          this.components = components;
+          this.baseManaCost = baseManaCost;
+          this.complexityMultiplier = complexityMultiplier;
+          this.description = description;
+          this.requirements = requirements; // { minLevel, requiredAffinities, requiredEnvironment }
+        }
+
+        calculateEffectiveness() {
+          let E = 0;
+          this.components.forEach(comp => {
+            E += (comp.alignmentCoefficient * comp.resonance.personal * comp.resonance.environmental * comp.focusAmplification) / comp.dissonanceFactor;
+          });
+          E *= this.complexityMultiplier;
+          return E;
+        }
+
+        calculateManaCost() {
+          let costMultiplier = 1 + (this.components.length - 1) * 0.1;
+          let totalCost = this.baseManaCost * costMultiplier * this.complexityMultiplier;
+          return totalCost;
+        }
+
+        canCast(caster, environment) {
+          // Check level requirement
+          if (this.requirements.minLevel && caster.level < this.requirements.minLevel) {
+            return false;
+          }
+          // Check affinity requirements
+          if (this.requirements.requiredAffinities) {
+            for (let energy in this.requirements.requiredAffinities) {
+              if ((caster.affinities[energy] || 0) < this.requirements.requiredAffinities[energy]) {
+                return false;
+              }
+            }
+          }
+          // Check environment requirements
+          if (this.requirements.requiredEnvironment) {
+            for (let energy in this.requirements.requiredEnvironment) {
+              if ((environment.resonances[energy] || 0) < this.requirements.requiredEnvironment[energy]) {
+                return false;
+              }
+            }
+          }
+          return true;
+        }
+
+        cast(caster, environment) {
+          let manaCost = this.calculateManaCost();
+          outputMessage(`${caster.name} attempts to cast '${this.name}'. Mana cost: ${manaCost.toFixed(2)}`, 'info');
+
+          if (caster.manaPool < manaCost) {
+            outputMessage(`${caster.name} lacks sufficient mana to cast '${this.name}'.`, 'failure');
+            return false;
+          }
+
+          caster.manaPool -= manaCost;
+          updateCasterInfo();
+          outputMessage(`${caster.name}'s mana after casting: ${caster.manaPool.toFixed(2)}/${caster.maxMana}`, 'info');
+
+          let effectiveness = this.calculateEffectiveness();
+
+          let successThreshold = Math.min(0.95, 0.5 + (caster.skillLevel - 1) * 0.1);
+          let successRoll = Math.random();
+
+          if (successRoll > successThreshold) {
+            outputMessage(`${caster.name} failed to cast '${this.name}'.`, 'failure');
+            return false;
+          }
+
+          outputMessage(`${caster.name} successfully casts '${this.name}' with effectiveness ${effectiveness.toFixed(2)}.`, 'success');
+
+          // Apply spell effects (for simplicity, just output a message)
+          environment.applyEffect(this, effectiveness);
+
+          return true;
+        }
+      }
+
+      class Caster {
+        constructor(name, level, manaPool, maxMana, affinities, skillLevel, fociArtifacts) {
+          this.name = name;
+          this.level = level;
+          this.experience = 0;
+          this.manaPool = manaPool;
+          this.maxMana = maxMana;
+          this.affinities = affinities;
+          this.skillLevel = skillLevel;
+          this.fociArtifacts = fociArtifacts;
+          this.spellbook = {};
+        }
+      }
+
+      class Environment {
+        constructor(name, resonances) {
+          this.name = name;
+          this.resonances = resonances;
+          this.timeOfDay = 'Day';
+          this.weather = 'Clear';
+        }
+
+        applyEffect(spell, effectiveness) {
+          outputMessage(`Environment '${this.name}' is affected by '${spell.name}' with effectiveness ${effectiveness.toFixed(2)}.`, 'info');
+        }
+
+        update() {
+          // Get local time
+          let now = new Date();
+          let hours = now.getHours();
+
+          // Determine time of day based on local time
+          if (hours >= 6 && hours < 18) {
+            this.timeOfDay = 'Day';
+          } else {
+            this.timeOfDay = 'Night';
+          }
+
+          // Adjust resonances based on time of day
+          if (this.timeOfDay === 'Day') {
+            this.resonances['Luminar'] = 1.5;
+            this.resonances['Umbrus'] = 0.8;
+          } else {
+            this.resonances['Luminar'] = 0.8;
+            this.resonances['Umbrus'] = 1.5;
+          }
+
+          updateEnvironmentInfo();
+        }
+      }
+
+      // System Variables
+      const arcaneEnergies = {
+        'Pyron': new ArcaneEnergy('Pyron', 1.0),
+        'Aquaris': new ArcaneEnergy('Aquaris', 0.9),
+        'Terran': new ArcaneEnergy('Terran', 0.8),
+        'Aeron': new ArcaneEnergy('Aeron', 0.7),
+        'Luminar': new ArcaneEnergy('Luminar', 1.2),
+        'Umbrus': new ArcaneEnergy('Umbrus', 1.1),
+        'Chronos': new ArcaneEnergy('Chronos', 1.5),
+        'Vitas': new ArcaneEnergy('Vitas', 1.3),
+        'Mortis': new ArcaneEnergy('Mortis', 1.4),
+      };
+
+      const dissonanceMatrix = {
+        'Pyron-Aquaris': 1.5,
+        'Luminar-Umbrus': 1.5,
+        'Vitas-Mortis': 1.5,
+      };
+
+      let caster = null;
+      let environment = null;
+      let currentLocation = null;
+
+      // Spell Library
+      const spellLibrary = [];
+
+      // Locations in Elaris
+      const locations = [
+        {
+          name: 'Nexus of Light',
+          resonances: {
+            'Luminar': 1.5,
+            'Vitas': 1.2,
+            'Umbrus': 0.8,
+          }
+        },
+        {
+          name: 'Shadow Realm',
+          resonances: {
+            'Umbrus': 1.5,
+            'Mortis': 1.3,
+            'Luminar': 0.7,
+          }
+        },
+        {
+          name: 'Elemental Plains',
+          resonances: {
+            'Pyron': 1.2,
+            'Aquaris': 1.2,
+            'Aeron': 1.2,
+            'Terran': 1.2,
+          }
+        },
+        {
+          name: 'Chrono Rift',
+          resonances: {
+            'Chronos': 1.5,
+            'Vitas': 0.9,
+            'Mortis': 0.9,
+          }
+        },
+        {
+          name: 'Enchanted Forest',
+          resonances: {
+            'Vitas': 1.5,
+            'Terran': 1.2,
+            'Aeron': 1.0,
+          }
+        }
+      ];
+
+      // Function to generate spells with requirements
+      function generateSpells() {
+        const energies = Object.keys(arcaneEnergies);
+        // Generate spells by combining energies
+        for (let i = 0; i < energies.length; i++) {
+          for (let j = i; j < energies.length; j++) {
+            const energy1 = energies[i];
+            const energy2 = energies[j];
+            const spellName = `${energy1} - ${energy2} Spell`;
+            const description = `A spell combining ${energy1} and ${energy2} energies.`;
+
+            const energiesUsed = [energy1];
+            if (energy2 !== energy1) energiesUsed.push(energy2);
+
+            const alignmentCoefficients = {};
+            energiesUsed.forEach(energy => {
+              alignmentCoefficients[energy] = 0.9 + Math.random() * 0.1; // Between 0.9 and 1.0
+            });
+
+            const dissonanceFactors = {};
+            energiesUsed.forEach(energy => {
+              dissonanceFactors[energy] = calculateDissonance(energy, energiesUsed);
+            });
+
+            const baseManaCost = 10 + Math.random() * 40; // Between 10 and 50
+            const complexityMultiplier = 1 + energiesUsed.length * 0.2; // Increases with number of energies
+
+            const components = energiesUsed.map(energyName => {
+              return new SpellComponent(
+                arcaneEnergies[energyName],
+                alignmentCoefficients[energyName],
+                new Resonance(0.8, 1.0), // Default values; will be adjusted when casting
+                1.0, // Default focus amplification
+                dissonanceFactors[energyName]
+              );
+            });
+
+            // Define requirements
+            const requirements = {
+              minLevel: Math.ceil(complexityMultiplier * 2), // Minimum level based on complexity
+              requiredAffinities: {},
+              requiredEnvironment: {},
+            };
+
+            // Set required affinities
+            energiesUsed.forEach(energy => {
+              requirements.requiredAffinities[energy] = 0.75;
+            });
+
+            // For some spells, require specific environmental resonances
+            if (Math.random() > 0.7) {
+              const requiredEnergy = energiesUsed[Math.floor(Math.random() * energiesUsed.length)];
+              requirements.requiredEnvironment[requiredEnergy] = 1.2;
+            }
+
+            const spell = new Spell(
+              spellName,
+              components,
+              baseManaCost,
+              complexityMultiplier,
+              description,
+              requirements
+            );
+
+            spellLibrary.push(spell);
+
+            // Stop at around 200 spells
+            if (spellLibrary.length >= 200) break;
+          }
+          if (spellLibrary.length >= 200) break;
+        }
+      }
+
+      // Generate the spell library
+      generateSpells();
+
+      // DOM Elements
+      const casterNameInput = document.getElementById('caster-name');
+      const casterLevelInput = document.getElementById('caster-level');
+      const casterSkillInput = document.getElementById('caster-skill');
+      const casterManaInput = document.getElementById('caster-mana');
+      const createCasterBtn = document.getElementById('create-caster-btn');
+      const casterInfoSpan = document.getElementById('caster-info');
+      const spellSection = document.getElementById('spell-section');
+      const spellSelect = document.getElementById('spell-select');
+      const castSpellBtn = document.getElementById('cast-spell-btn');
+      const outputDiv = document.getElementById('output');
+      const environmentNameSpan = document.getElementById('environment-name');
+      const environmentTimeSpan = document.getElementById('environment-time');
+      const environmentWeatherSpan = document.getElementById('environment-weather');
+      const environmentResonancesUl = document.getElementById('environment-resonances');
+      const locationSelect = document.getElementById('location-select');
+      const travelBtn = document.getElementById('travel-btn');
+      const locationSection = document.getElementById('location-section');
+
+      // Event Listeners
+      createCasterBtn.addEventListener('click', createCaster);
+      castSpellBtn.addEventListener('click', castSelectedSpell);
+      travelBtn.addEventListener('click', travelToLocation);
+
+      // Functions
+      function outputMessage(message, type) {
+        const p = document.createElement('p');
+        p.textContent = message;
+        p.classList.add(`status-${type}`, 'mb-2');
+        outputDiv.appendChild(p);
+        outputDiv.scrollTop = outputDiv.scrollHeight;
+      }
+
+      function createCaster() {
+        const name = casterNameInput.value.trim();
+        const level = parseInt(casterLevelInput.value);
+        const skillLevel = parseFloat(casterSkillInput.value);
+        const manaPool = parseFloat(casterManaInput.value);
+
+        if (!name) {
+          alert('Please enter a caster name.');
+          return;
+        }
+
+        // For simplicity, assign random affinities to the caster
+        const affinities = {};
+        Object.keys(arcaneEnergies).forEach(energy => {
+          affinities[energy] = 0.7 + Math.random() * 0.3; // Between 0.7 and 1.0
+        });
+
+        caster = new Caster(name, level, manaPool, manaPool, affinities, skillLevel, [
+          new FociArtifact('Universal Staff', {
+            // Amplification for all energies
+            'Pyron': 1.1,
+            'Aquaris': 1.1,
+            'Terran': 1.1,
+            'Aeron': 1.1,
+            'Luminar': 1.1,
+            'Umbrus': 1.1,
+            'Chronos': 1.1,
+            'Vitas': 1.1,
+            'Mortis': 1.1,
+          })
+        ]);
+
+        outputMessage(`Caster '${caster.name}' created.`, 'success');
+        updateCasterInfo();
+
+        // Initialize environment to the first location
+        currentLocation = locations[0];
+        environment = new Environment(currentLocation.name, { ...currentLocation.resonances });
+        environment.update();
+        setInterval(() => environment.update(), 60000); // Update every minute
+
+        // Learn spells (for simplicity, learn all spells)
+        spellLibrary.forEach(spell => {
+          caster.spellbook[spell.name] = spell;
+        });
+
+        populateSpellSelect();
+
+        // Populate location select
+        populateLocationSelect();
+
+        spellSection.style.display = 'block';
+        locationSection.style.display = 'block';
+      }
+
+      function updateCasterInfo() {
+        if (caster) {
+          casterInfoSpan.textContent = `${caster.name} (Level: ${caster.level}, Mana: ${caster.manaPool.toFixed(2)}/${caster.maxMana})`;
+        }
+      }
+
+      function updateEnvironmentInfo() {
+        if (environment) {
+          environmentNameSpan.textContent = environment.name;
+          environmentTimeSpan.textContent = environment.timeOfDay;
+          environmentWeatherSpan.textContent = environment.weather;
+          environmentResonancesUl.innerHTML = '';
+          for (let key in environment.resonances) {
+            const li = document.createElement('li');
+            li.textContent = `${key}: ${environment.resonances[key].toFixed(2)}`;
+            environmentResonancesUl.appendChild(li);
+          }
+        }
+      }
+
+      function populateSpellSelect() {
+        spellSelect.innerHTML = '';
+        Object.keys(caster.spellbook).sort().forEach(spellName => {
+          const spell = caster.spellbook[spellName];
+          if (spell.canCast(caster, environment)) {
+            const option = document.createElement('option');
+            option.value = spellName;
+            option.textContent = spellName;
+            spellSelect.appendChild(option);
+          }
+        });
+      }
+
+      function calculateDissonance(energyName, energiesUsed) {
+        let dissonance = 1.0;
+        energiesUsed.forEach(other => {
+          if (other === energyName) return;
+          const pair = [energyName, other].sort().join('-');
+          if (dissonanceMatrix[pair]) {
+            dissonance *= dissonanceMatrix[pair];
+          }
+        });
+        return dissonance;
+      }
+
+      function castSelectedSpell() {
+        const spellName = spellSelect.value;
+        const spell = caster.spellbook[spellName];
+
+        // Update components with current affinities and resonances
+        spell.components.forEach(component => {
+          component.resonance.personal = caster.affinities[component.energy.name] || 0.5;
+          component.resonance.environmental = environment.resonances[component.energy.name] || 1.0;
+
+          // Update focus amplification based on caster's artifacts
+          let amplification = 1.0;
+          caster.fociArtifacts.forEach(artifact => {
+            amplification *= artifact.amplification[component.energy.name] || 1.0;
+          });
+          component.focusAmplification = amplification;
+        });
+
+        spell.cast(caster, environment);
+
+        // Refresh spell selection in case casting affected requirements
+        populateSpellSelect();
+      }
+
+      function populateLocationSelect() {
+        locationSelect.innerHTML = '';
+        locations.forEach(location => {
+          const option = document.createElement('option');
+          option.value = location.name;
+          option.textContent = location.name;
+          locationSelect.appendChild(option);
+        });
+      }
+
+      function travelToLocation() {
+        const selectedLocationName = locationSelect.value;
+        const selectedLocation = locations.find(loc => loc.name === selectedLocationName);
+        if (selectedLocation) {
+          currentLocation = selectedLocation;
+          environment = new Environment(currentLocation.name, { ...currentLocation.resonances });
+          environment.update();
+          outputMessage(`${caster.name} travels to ${currentLocation.name}.`, 'info');
+
+          // Update spell selection based on new environment
+          populateSpellSelect();
+        }
+      }
+    })();
+  </script>
+</body>
+</html>
